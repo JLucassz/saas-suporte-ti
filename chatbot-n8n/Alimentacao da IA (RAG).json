@@ -112,7 +112,7 @@
           "parameters": [
             {
               "name": "Authorization ",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0c2p3aHVoZnpjanJ1endzZHJmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTMxMzMyMywiZXhwIjoyMDgwODg5MzIzfQ.UpcAW_Ap7v7E1oUvxBP5T3BQS5dcersbrLFhDXMY7ts"
+              "value": "Bearer SUA_CHAVE_AQUI"
             }
           ]
         },
