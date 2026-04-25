@@ -1,0 +1,1108 @@
+{
+  "name": "Pre-Atendimento (RAG)",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c965ec9f-7530-4e39-96d8-44556c2122a0",
+              "leftValue": "={{ $json.ultima_interacao.toString() }}",
+              "rightValue": "={{ $executionId.toString() }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2080,
+        -1008
+      ],
+      "id": "62a36f8e-5f2e-400a-b0e0-d68b8fb61959",
+      "name": "IF: Usuario Parou de Falar?"
+    },
+    {
+      "parameters": {
+        "tableId": "logs_mensagens",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "numero",
+              "fieldValue": "={{ $('TRIGGER: Recebe Dados').item.json.Numero }}"
+            },
+            {
+              "fieldId": "mensagem",
+              "fieldValue": "={{ $('TRIGGER: Recebe Dados').item.json.Mensagem }}"
+            },
+            {
+              "fieldId": "processado",
+              "fieldValue": "={{ false }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1392,
+        -1008
+      ],
+      "id": "806a92dc-e3df-465d-94f7-1033cb70ea2f",
+      "name": "DB: Acumula Mensagem",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "usuarios",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('TRIGGER: Recebe Dados').item.json.Numero }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ultima_interacao",
+              "fieldValue": "={{ $executionId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        -1008
+      ],
+      "id": "27726019-7a1c-4fdb-8757-5c27a8d33028",
+      "name": "DB: Atualiza Timeout",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "usuarios",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('TRIGGER: Recebe Dados').item.json.Numero }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1904,
+        -1008
+      ],
+      "id": "487d896f-1a34-489d-8a6a-89483467930c",
+      "name": "DB: Verifica Ultima Interacao",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pega todas as mensagens encontradas pelo Supabase\nconst items = $input.all();\n\nif (items.length === 0) {\n  // Retorna vazio se não achar nada para não quebrar\n  return [{ json: { RelatoFinal: \"\", QuantidadeMensagens: 0 } }];\n}\n\n// Mapeia apenas o texto da mensagem\nconst mensagens = items.map(item => item.json.mensagem);\n\n// Junta com quebra de linha e traço\nconst relatoCompleto = mensagens.join(\"\\n- \");\n\n// LIMITADOR DE CARACTERES (Segurança)\n// Corta se passar de 4000 caracteres (aprox 1000 tokens)\nconst relatoSeguro = relatoCompleto.length > 4000 \n  ? relatoCompleto.substring(0, 4000) + \"\\n...[Texto truncado por excesso de tamanho]\" \n  : relatoCompleto;\n\nreturn [\n  {\n    json: {\n      RelatoFinal: \"- \" + relatoSeguro,\n      QuantidadeMensagens: mensagens.length\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2896,
+        -1024
+      ],
+      "id": "433b8bbf-5504-4803-bfca-cb79d4fae3b7",
+      "name": "Code: Agrupa Mensagens"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "logs_mensagens",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "processado",
+              "fieldValue": "={{ true }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        -1024
+      ],
+      "id": "72f9ac6d-8d86-45b3-bc26-623e860756f3",
+      "name": "DB: Marca Processado",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e7c4ddda-d05c-4957-ab23-b0342daca947",
+              "name": "sucesso",
+              "value": "true",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4208,
+        -1264
+      ],
+      "id": "d0051512-b647-4031-b414-d27de4c409b6",
+      "name": "Output: Sucesso"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b82d34d9-afc6-4286-9093-ff9df19d87e1",
+              "name": "ultimo_relato_usuario",
+              "value": "={{ $('Code: Agrupa Mensagens').item.json.RelatoFinal }}",
+              "type": "string"
+            },
+            {
+              "id": "8c5d334e-dd54-429e-b77f-f750faa74a93",
+              "name": "categoria_escolhida",
+              "value": "={{ $('DB: Verifica Ultima Interacao').item.json.categoria_escolhida }}",
+              "type": "string"
+            },
+            {
+              "id": "8b721ac1-75b4-43d1-881b-5b1ade91632d",
+              "name": "respostaRAG",
+              "value": "A IA não encontrou nenhuma solução para este problema.",
+              "type": "string"
+            },
+            {
+              "id": "b23349e0-3fb4-4624-baf1-d36fcaf2ae6e",
+              "name": "sucesso",
+              "value": "false",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4208,
+        -1088
+      ],
+      "id": "182d5145-d50a-4cb1-bc61-67cc7af73982",
+      "name": "Output: Abrir chamado"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "mensagem": "*Relato recebido!* 🔍\n\nEstou consultando nossa base técnica para verificar se consigo te ajudar agora mesmo.\nCaso seja algo mais complexo, abrirei o chamado para a equipe imediatamente. Um instante...",
+            "numero": "={{ $('TRIGGER: Recebe Dados').item.json.Numero }}",
+            "instancia": "={{ $('TRIGGER: Recebe Dados').item.json.Instancia }}",
+            "delay": "0"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2320,
+        -1024
+      ],
+      "id": "f69da6af-c0a4-4429-9c76-b4165abaab0b",
+      "name": "MSG: Feedback Analise"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1744,
+        -1008
+      ],
+      "id": "d9371872-4270-45d1-9bd2-109be9cca41d",
+      "name": "[15s] DELAY",
+      "webhookId": "e2102539-947f-426d-9d6d-c288cdd75945"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eeec42bc-5fb5-49a0-8709-27d382041114",
+              "leftValue": "={{ $json.output.encontrou_solucao }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3584,
+        -1104
+      ],
+      "id": "a8d4ed4e-7d0a-4a2d-afd9-b6c042afff47",
+      "name": "IF: Encontrou solucao?"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Utilize esta ferramenta para buscar soluções técnicas, manuais e procedimentos na base de conhecimento da empresa sempre que o usuário relatar um problema relacionado a TI.",
+        "tableName": {
+          "__rl": true,
+          "value": "rpc/match_documents",
+          "mode": "list",
+          "cachedResultName": "rpc/match_documents"
+        },
+        "options": {
+          "queryName": "match_documents",
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "category",
+                "value": "={{ parseInt($('DB: Verifica Ultima Interacao').item.json.categoria_escolhida) }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        3104,
+        -784
+      ],
+      "id": "74ac7eb9-30eb-46c7-a216-664bd32ab7d0",
+      "name": "DB: Base de Conhecimento (Vetorial)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *\nFROM logs_mensagens\nWHERE numero = $1\nAND processado = false\nORDER BY id ASC\nLIMIT 6;",
+        "options": {
+          "queryReplacement": "={{ $('TRIGGER: Recebe Dados').item.json.Numero }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2528,
+        -1024
+      ],
+      "id": "dc9cffcc-bb75-4989-8c98-49126d1c46a2",
+      "name": "DB: Busca Historico (Ordenado)",
+      "credentials": {
+        "postgres": {
+          "id": "p22jWT0UQf12jecl",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "usuarios",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('TRIGGER: Recebe Dados').item.json.Numero }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status_conversa",
+              "fieldValue": "VALIDANDO_SOLUCAO"
+            },
+            {
+              "fieldId": "ultimo_relato_usuario",
+              "fieldValue": "={{ $('Code: Agrupa Mensagens').item.json.RelatoFinal }}"
+            },
+            {
+              "fieldId": "ultima_resposta_ia",
+              "fieldValue": "={{ $('IA: Agente de Triagem').item.json.output.mensagem_usuario }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4016,
+        -1264
+      ],
+      "id": "c034c84e-61cf-4365-8f34-d97c62a98dde",
+      "name": "DB: Altera Status para VALIDANDO_SOLUCAO",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Mensagem do Usuario: {{ $('Code: Agrupa Mensagens').item.json.RelatoFinal }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um Assistente de Triagem Técnica Rigoroso.\nSua única função é validar se a Base de Conhecimento contém a resposta EXATA para o problema do usuário.\n\nMensagem do Usuário: {{ $('Code: Agrupa Mensagens').item.json.RelatoFinal }}\n\n### INSTRUÇÕES DE EXECUÇÃO:\n\n1. AÇÃO OBRIGATÓRIA: Use a ferramenta \"consultar_base_conhecimento\" imediatamente.\n\n2. ANÁLISE DE EVIDÊNCIA (CRÍTICO):\n   - Analise o texto retornado pela ferramenta.\n   - Pergunte-se: \"Este documento contém o passo-a-passo explícito para resolver exatamente este problema?\"\n   - Se o documento falar sobre um software/modelo diferente do que o usuário pediu: IGNORE e marque false.\n   - Se o documento der apenas uma dica vaga sem instruções práticas: IGNORE e marque false.\n\n3. PROIBIÇÕES (ZERO ALUCINAÇÃO):\n   - NÃO use seu conhecimento prévio sobre TI. Use APENAS o texto retornado pela ferramenta.\n   - NÃO tente adaptar instruções de um sistema para outro (ex: não aplique instruções de Windows em Mac).\n   - NÃO invente passos que não estejam escritos no documento.\n\n### DECISÃO FINAL:\n\n- Se encontrou a solução exata no contexto:\n  Retorne \"encontrou_solucao\": \"true\" e preencha a mensagem com o resumo do documento.\n\n- Se o contexto for vazio, irrelevante ou insuficiente:\n  Retorne \"encontrou_solucao\": \"false\" e deixe a \"mensagem_usuario\" como uma string vazia \"\".\n\n### FORMATO DE SAÍDA (JSON):\nRespeite estritamente o schema do Output Parser.\n\n{\n  \"encontrou_solucao\": \"true\",\n  \"mensagem_usuario\": \"Texto explicativo baseado ÚNICA E EXCLUSIVAMENTE no contexto recuperado...\",\n  \"fonte\": \"Nome do arquivo ou Título do documento (Se disponível no metadado)\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        3184,
+        -1024
+      ],
+      "id": "fa003951-0dfa-47ce-ac7a-0de1f241b8c2",
+      "name": "IA: Agente de Triagem",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2928,
+        -784
+      ],
+      "id": "316d693b-48fe-426a-98d4-614d316157b9",
+      "name": "MODEL: GPT-5 Mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "OwW6ALMrJmJt2GRR",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"encontrou_solucao\": \"true | false\",\n  \"mensagem_usuario\": \"Texto amigável explicando a solução passo a passo (se encontrou) ou a frase: nenhuma solução encontrada (se não encontrou). Use emojis se apropriado.\",\n  \"fonte\": \"Título ou ID do documento usado (opcional)\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3408,
+        -784
+      ],
+      "id": "2b837e70-1b83-4e58-a663-168bb750ad0d",
+      "name": "PARSER: Formata JSON"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3104,
+        -624
+      ],
+      "id": "8c145615-eb70-4c1a-aff4-e183e6ca6f10",
+      "name": "MODEL: Embeddings",
+      "credentials": {
+        "openAiApi": {
+          "id": "OwW6ALMrJmJt2GRR",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "chat-api",
+        "operation": "send-presence",
+        "instanceName": "={{ $('TRIGGER: Recebe Dados').item.json.Instancia }}",
+        "remoteJid": "={{ $('TRIGGER: Recebe Dados').item.json.Numero }}",
+        "delay": 5000
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        1904,
+        -1216
+      ],
+      "id": "f292e33a-1593-4e65-b8a2-5290975abf6a",
+      "name": "API: Envia Status \"Digitando...\"",
+      "credentials": {
+        "evolutionApi": {
+          "id": "UgqHQrQSVJyUP9Ab",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "mensagem": "=📄 *Encontrei uma solução na base técnica:*\n\n{{ $('IA: Agente de Triagem').item.json.output.mensagem_usuario }}\n\n---\n👇 *Isso resolveu seu problema?*\n\nDigite 1️⃣ para **SIM** (Encerrar)\nDigite 2️⃣ para **NÃO** (Abrir Chamado)",
+            "numero": "={{ $('TRIGGER: Recebe Dados').item.json.Numero }}",
+            "instancia": "={{ $('TRIGGER: Recebe Dados').item.json.Instancia }}",
+            "delay": "0"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3808,
+        -1264
+      ],
+      "id": "0d0e676f-cf3b-4c89-874c-1203ffac6bb2",
+      "name": "MSG: Envia Solucao IA"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "numero": "={{ $('TRIGGER: Recebe Dados').item.json.Numero }}",
+            "instancia": "={{ $('TRIGGER: Recebe Dados').item.json.Instancia }}",
+            "delay": "0",
+            "mensagem": "📂 Consultei nossa *base técnica*, mas não encontrei uma solução exata para o seu caso.\n\nPara garantir que seu problema seja resolvido corretamente, estou abrindo um chamado para a equipe de TI agora mesmo.\n\n---\n⏳ *Aguarde um instante...*"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3808,
+        -1088
+      ],
+      "id": "bbbbc7a2-982e-4ec0-a344-46e2ddc31987",
+      "name": "MSG: Nao Encontrou Solucao"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "delay": "0",
+            "instancia": "={{ $('TRIGGER: Recebe Dados').item.json.Instancia }}",
+            "numero": "={{ $('TRIGGER: Recebe Dados').item.json.Numero }}",
+            "mensagem": "⚠️ **Identifiquei uma instabilidade momentânea no sistema.**\n\nNão consegui processar a solução para o eu problema agora. Peço desculpas por isso.\nMas fique tranquilo: para não te deixar na mão, **já estou abrindo um chamado para nossa equipe assumir daqui.**\n\n---\n🔄 *Redirecionando para a equipe de TI...*"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3808,
+        -896
+      ],
+      "id": "4f25f4c4-6db3-4553-846c-5161d6df9f3d",
+      "name": "MSG: Avisa Erro Tecnico na IA"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Numero",
+              "type": "any"
+            },
+            {
+              "name": "Mensagem",
+              "type": "any"
+            },
+            {
+              "name": "Instancia",
+              "type": "any"
+            }
+          ]
+        }
+      },
+      "id": "b6e6fd48-045a-4d0e-8f0b-aa2b71ffd7e5",
+      "typeVersion": 1.1,
+      "name": "TRIGGER: Recebe Dados",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        1184,
+        -1008
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "IF: Usuario Parou de Falar?": {
+      "main": [
+        [
+          {
+            "node": "MSG: Feedback Analise",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Atualiza Timeout": {
+      "main": [
+        [
+          {
+            "node": "[15s] DELAY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Acumula Mensagem": {
+      "main": [
+        [
+          {
+            "node": "DB: Atualiza Timeout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Verifica Ultima Interacao": {
+      "main": [
+        [
+          {
+            "node": "IF: Usuario Parou de Falar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Agrupa Mensagens": {
+      "main": [
+        [
+          {
+            "node": "IA: Agente de Triagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Marca Processado": {
+      "main": [
+        [
+          {
+            "node": "Code: Agrupa Mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MSG: Feedback Analise": {
+      "main": [
+        [
+          {
+            "node": "DB: Busca Historico (Ordenado)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[15s] DELAY": {
+      "main": [
+        [
+          {
+            "node": "DB: Verifica Ultima Interacao",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "API: Envia Status \"Digitando...\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Encontrou solucao?": {
+      "main": [
+        [
+          {
+            "node": "MSG: Envia Solucao IA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MSG: Nao Encontrou Solucao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Base de Conhecimento (Vetorial)": {
+      "ai_tool": [
+        [
+          {
+            "node": "IA: Agente de Triagem",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Busca Historico (Ordenado)": {
+      "main": [
+        [
+          {
+            "node": "DB: Marca Processado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Altera Status para VALIDANDO_SOLUCAO": {
+      "main": [
+        [
+          {
+            "node": "Output: Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA: Agente de Triagem": {
+      "main": [
+        [
+          {
+            "node": "IF: Encontrou solucao?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MSG: Avisa Erro Tecnico na IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MODEL: GPT-5 Mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "IA: Agente de Triagem",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "PARSER: Formata JSON",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PARSER: Formata JSON": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "IA: Agente de Triagem",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MODEL: Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "DB: Base de Conhecimento (Vetorial)",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Envia Status \"Digitando...\"": {
+      "main": [
+        []
+      ]
+    },
+    "MSG: Envia Solucao IA": {
+      "main": [
+        [
+          {
+            "node": "DB: Altera Status para VALIDANDO_SOLUCAO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MSG: Nao Encontrou Solucao": {
+      "main": [
+        [
+          {
+            "node": "Output: Abrir chamado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MSG: Avisa Erro Tecnico na IA": {
+      "main": [
+        [
+          {
+            "node": "Output: Abrir chamado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TRIGGER: Recebe Dados": {
+      "main": [
+        [
+          {
+            "node": "DB: Acumula Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bedfd332-a0d0-4aa5-bf63-230ed5118299",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c5eaa6ba0986626f01eb024c5bb1f76aadad0a491a2deb83a77a572c5d18a719"
+  },
+  "id": "0WN58RubKW8ACcGr",
+  "tags": [
+    {
+      "updatedAt": "2025-12-17T20:35:59.644Z",
+      "createdAt": "2025-12-17T20:35:59.644Z",
+      "id": "yo6XdkWF9gxVuN5Q",
+      "name": "sub-workflow"
+    }
+  ]
+}

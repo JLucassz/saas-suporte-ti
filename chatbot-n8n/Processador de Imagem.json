@@ -1,0 +1,742 @@
+{
+  "name": "Processador de Imagem",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "859e792c-8367-4652-a900-b1f3c583ca0b",
+              "leftValue": "={{ $('Start').item.json.base64 }}",
+              "rightValue": "sem imagem",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -560,
+        -544
+      ],
+      "id": "a6bac97c-8074-4049-9e50-604e92550e50",
+      "name": "IF: Verifica Existencia Imagem"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c47ffd04-01b6-4a62-b00e-37e9136f9eba",
+              "leftValue": "={{ $('Start').item.json.status_conversa }}",
+              "rightValue": "DESCREVENDO_PROBLEMA",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -800,
+        -448
+      ],
+      "id": "468ac976-7015-4b25-b324-bac2e3a55af6",
+      "name": "IF: Pode Receber Imagem?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "52190678-02d7-43ef-8cf0-2ce4a4758b55",
+              "name": "Mensagem",
+              "value": "={{ $('AI: Analista de Imagens').item.json.output.descricao }}",
+              "type": "string"
+            },
+            {
+              "id": "09f3e3f0-0d89-48c9-8c48-763c8086ce24",
+              "name": "linkImagem",
+              "value": "={{ $json.webViewLink }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1008,
+        -784
+      ],
+      "id": "8ab1a0b6-6ae0-4e53-be29-af1e38f3de1c",
+      "name": "SET: Prepara Texto da Imagem"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69dd3c64-beb4-44cb-89a4-e3c3991853c2",
+              "name": "base64",
+              "value": "={{ $('Start').item.json.base64 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        -768
+      ],
+      "id": "c3a80127-0a8f-4e3c-899c-3e9a7b977604",
+      "name": "SET: Resgata Base64 (Imagem)"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -160,
+        -768
+      ],
+      "id": "2b4ec0c6-9438-4964-a839-0a81a0080579",
+      "name": "BIN: Converte Base64 em Imagem"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        -528
+      ],
+      "id": "190ff565-99f9-479e-b0ca-ced243b32a0d",
+      "name": "MODEL: GPT 5 Mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "OwW6ALMrJmJt2GRR",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analise a imagem que vem do node anterior \"BIN: Converte Base64 em Imagem\"",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um Analista de Suporte de TI especializado em analise de imagens enviadas pelo usuario.\nSua missão é analisar a imagem fornecida, classificar sua relevância técnica e descrever o problema.\n\n### CRITÉRIOS DE CLASSIFICAÇÃO (Campo: imagemTecnica):\n\nRETORNE \"TRUE\" SE A IMAGEM CONTIVER:\n1. Telas de erro (Tela Azul/BSOD, códigos de erro, pop-ups de alerta).\n2. Interfaces de software corporativo (SAP, Outlook, Excel, CRM, ERP).\n3. Linhas de comando, terminais ou logs.\n4. Hardware de TI (Computadores, impressoras, roteadores, cabos, periféricos).\n5. Fotos de danos físicos a equipamentos eletrônicos.\n\nRETORNE \"FALSE\" SE A IMAGEM FOR:\n1. Fotos pessoais (Selfies, pessoas sorrindo sem contexto de trabalho).\n2. Objetos não relacionados a TI (Comida, paisagens, móveis, animais).\n3. Prints de conversas de chat sem contexto de erro técnico.\n4. Imagens escuras, borradas ou ilegíveis onde nada técnico é identificável.\n\n### DIRETRIZES PARA DESCRIÇÃO (Campo: descricao):\n- Se houver texto na imagem (OCR), transcreva o código do erro principal (ex: \"Erro 404\", \"0x00000\").\n- Seja cirúrgico. \n- Exemplo Bom: \"Print de erro no Outlook: Falha na conexão com servidor Exchange\".\n- Exemplo Ruim: \"Uma foto de uma tela de computador com algumas letras\".\n- Se \"imagemTecnica\" for false, a descrição deve ser apenas: \"Imagem descartada: Conteúdo não técnico detectado.\"",
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        32,
+        -768
+      ],
+      "id": "f5910e7f-dbbf-4d6c-933f-a9ea3003c917",
+      "name": "AI: Analista de Imagens"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        608,
+        -784
+      ],
+      "id": "0e08f7ef-c42c-4841-8073-f5eb73994845",
+      "name": "MERGE: Restaura Arquivo"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Start').item.json.Nome }} - {{ $now.format(\"dd/MM/yyyy HH:mm:ss\") }} Chamado",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1E0GlktFiMrUmxr0lTa4Bg_KV-7k1may3",
+          "mode": "list",
+          "cachedResultName": "Imagens Chatbot Suporte TI",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1E0GlktFiMrUmxr0lTa4Bg_KV-7k1may3"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        816,
+        -784
+      ],
+      "id": "ca73431d-a606-4ace-86ad-557c09ebf4b2",
+      "name": "DRIVE: Upload Imagem",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "tybMvkfA8Ymm4Rq0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6c4996d0-7a7a-4d4c-930d-79b4e9f376d5",
+              "leftValue": "={{ $json.output.imagemTecnica }}",
+              "rightValue": "TRUE",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        -768
+      ],
+      "id": "8ac2a3ec-bb4e-45f9-baa3-12ddcc63d980",
+      "name": "IF: E Imagem Tecnica?"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"imagemTecnica\": \"TRUE || FALSE\",\n\t\"descricao\": \"Texto descrevendo a imagem enviada\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        176,
+        -544
+      ],
+      "id": "ca50399b-5bd8-466b-876f-bc1307d1cb27",
+      "name": "PARSER: Formata JSON1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ba262235-8a89-405a-b95b-db75a68bcdcd",
+              "name": "Mensagem",
+              "value": "={{ $json.Mensagem }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1184,
+        -784
+      ],
+      "id": "5f603157-2785-453f-8e17-2bcae83dd916",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "base64",
+              "type": "any"
+            },
+            {
+              "name": "status_conversa",
+              "type": "any"
+            },
+            {
+              "name": "Nome",
+              "type": "any"
+            },
+            {
+              "name": "Instancia",
+              "type": "any"
+            },
+            {
+              "name": "Numero",
+              "type": "any"
+            }
+          ]
+        }
+      },
+      "id": "a19db8df-fb8d-483e-a2d7-c76bf9d9dcac",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -976,
+        -448
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "numero": "={{ $('Start').item.json.Numero }}",
+            "instancia": "={{ $('Start').item.json.Instancia }}",
+            "mensagem": "Recebi sua imagem 📷, mas preciso de contexto!\n\nPara que eu consiga analisar o erro na foto, preciso primeiro saber qual é a categoria do problema.\n\n👇 Por favor, selecione uma opção do menu ou descreva o problema em texto. Assim que entrarmos no atendimento, eu pedirei a foto! 😉",
+            "delay": "2"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -560,
+        -320
+      ],
+      "id": "26d2ec68-ccb9-4039-b08e-dd3ba80f55b2",
+      "name": "MSG: Imagem Fora de Hora"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "numero": "={{ $('Start').item.json.Numero }}",
+            "instancia": "={{ $('Start').item.json.Instancia }}",
+            "mensagem": "Falha no download da imagem.\n\nNão consegui carregar o conteúdo da foto que você enviou. \nÀs vezes isso acontece por oscilação na conexão.\n\n🔄 Por favor, tente enviar a imagem novamente.",
+            "delay": "0"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -352,
+        -528
+      ],
+      "id": "b68d4a70-8216-4e84-9139-390f9bfbc862",
+      "name": "MSG: Erro Download Imagem"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "mensagem": "Analisei a imagem, mas não encontrei o erro.\n\nParece que a foto não mostra detalhes técnicos claros (como mensagens de erro na tela, códigos ou o equipamento com defeito).\n\n📸 Poderia enviar um novo Print ou Foto focada no problema?\n\nSe preferir, pode me explicar o que está acontecendo por áudio ou texto! 🎙️",
+            "numero": "={{ $('Start').item.json.Numero }}",
+            "instancia": "={{ $('Start').item.json.Instancia }}",
+            "delay": "0"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        -576
+      ],
+      "id": "05ee5be8-01cc-4917-a587-4262f09bdbc6",
+      "name": "MSG: Rejeita Imagem Nao Tecnica"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "IF: Verifica Existencia Imagem": {
+      "main": [
+        [
+          {
+            "node": "SET: Resgata Base64 (Imagem)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MSG: Erro Download Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Pode Receber Imagem?": {
+      "main": [
+        [
+          {
+            "node": "IF: Verifica Existencia Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MSG: Imagem Fora de Hora",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET: Resgata Base64 (Imagem)": {
+      "main": [
+        [
+          {
+            "node": "BIN: Converte Base64 em Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BIN: Converte Base64 em Imagem": {
+      "main": [
+        [
+          {
+            "node": "AI: Analista de Imagens",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MERGE: Restaura Arquivo",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "MODEL: GPT 5 Mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: Analista de Imagens",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "PARSER: Formata JSON1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Analista de Imagens": {
+      "main": [
+        [
+          {
+            "node": "IF: E Imagem Tecnica?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MERGE: Restaura Arquivo": {
+      "main": [
+        [
+          {
+            "node": "DRIVE: Upload Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DRIVE: Upload Imagem": {
+      "main": [
+        [
+          {
+            "node": "SET: Prepara Texto da Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: E Imagem Tecnica?": {
+      "main": [
+        [
+          {
+            "node": "MERGE: Restaura Arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MSG: Rejeita Imagem Nao Tecnica",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PARSER: Formata JSON1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI: Analista de Imagens",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "IF: Pode Receber Imagem?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET: Prepara Texto da Imagem": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4f5447f2-2b20-4698-a26d-4f2ab5a6427e",
+  "meta": {
+    "instanceId": "c5eaa6ba0986626f01eb024c5bb1f76aadad0a491a2deb83a77a572c5d18a719"
+  },
+  "id": "4CtC2ribv4AuKbIC",
+  "tags": [
+    {
+      "updatedAt": "2025-12-17T20:35:59.644Z",
+      "createdAt": "2025-12-17T20:35:59.644Z",
+      "id": "yo6XdkWF9gxVuN5Q",
+      "name": "sub-workflow"
+    }
+  ]
+}

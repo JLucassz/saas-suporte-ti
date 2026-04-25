@@ -1,0 +1,422 @@
+{
+  "name": "Criando Chamados",
+  "nodes": [
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"prioridade\": \"ALTA | MEDIA | BAIXA\",\n\t\"resumo\": \"resumo tecnico (maximo 200 caracteres)\",\n\t\"causa_provavel\": \"possivel causa do problema\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        4944,
+        304
+      ],
+      "id": "726526c9-61c1-4001-a51f-529e9b408587",
+      "name": "PARSER: Formata JSON"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        4608,
+        304
+      ],
+      "id": "4cf684a0-e14e-40e1-9f6d-8a0168aec2f2",
+      "name": "MODEL: GPT 5 Mini1",
+      "credentials": {
+        "openAiApi": {
+          "id": "OwW6ALMrJmJt2GRR",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Start').first().json.Numero_firstItem }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        4800,
+        304
+      ],
+      "id": "a63d49ba-1887-4e17-806d-bbf1bbd5402b",
+      "name": "MEM: Contexto do Agente"
+    },
+    {
+      "parameters": {
+        "jsCode": "const date = new Date();\n\n// Extraindo as partes da data\nconst dia = date.getDate().toString().padStart(2, '0');\nconst mes = (date.getMonth() + 1).toString().padStart(2, '0');\nconst ano = date.getFullYear().toString();\n\n// Gerando 3 números aleatórios (entre 100 e 999)\nconst aleatorio = Math.floor(100 + Math.random() * 900);\n\n// Montando no formato: ID-DDMMAAAA-XXX\nconst protocolo = 'ID-' + dia + mes + ano + '-' + aleatorio;\n\nreturn { protocolo: protocolo };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4544,
+        96
+      ],
+      "id": "4d503039-5baf-4895-9c91-c486d36852b4",
+      "name": "CODE: Gerador de Protocolo"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Mensagem do Usuario: {{ $('Start').item.json.relatoFinal }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um Assistente Especialista em Triagem de TI (Nível 2).\nSua função é analisar um incidente onde o autoatendimento falhou e estruturar os dados para a equipe técnica.\n\nDADOS DE ENTRADA:\n- Categoria: {{ $('Start').item.json.categoriaEscolhida }}\n- Relato do Usuário: {{ $('Start').item.json.relatoFinal }}\n- Solução Automática já Tentada (Falhou): {{ $('Start').item.json.respostaRAG }}\n\nREGRAS DE OURO:\n1. Atenha-se ESTRITAMENTE aos fatos. Não invente erros técnicos não citados.\n2. O usuário rejeitou a \"Solução Automática\". Considere isso ao definir a Causa Provável (não sugira o que já falhou).\n3. Se o relato for vago, o resumo deve refletir a falta de detalhes.\n4. Não tente resolver o problema.\n\nDIRETRIZES PARA OS CAMPOS:\n\n1. PRIORIDADE (ALTA | MEDIA | BAIXA):\n   - ALTA: Sistema inoperante, múltiplos usuários afetados, risco de segurança ou \"tudo parado\".\n   - MEDIA: Falha recorrente onde o paliativo (IA) não resolveu, lentidão severa.\n   - BAIXA: Dúvidas, solicitações de acesso, ou problemas cosméticos.\n\n2. RESUMO (Máx 200 caracteres):\n   - Deve ser um título factual e técnico.\n   - Formato ideal: \"Ação + Objeto + Falha\".\n   - Exemplo: \"Impressora não responde após verificação de cabos\".\n\n3. CAUSA PROVAVEL:\n   - Gere uma hipótese técnica descartando a solução automática que falhou.\n   - Ex: Se a IA já pediu para \"Reiniciar\" e não funcionou, a causa provável NÃO é \"Falta de reinicialização\", e sim \"Corrupção de sistema\" ou \"Falha de Hardware\".\n\nResponda preenchendo o JSON schema fornecido."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        4752,
+        96
+      ],
+      "id": "da35848e-026a-40a4-953f-87b701340cfb",
+      "name": "AI - Classifica o Chamado"
+    },
+    {
+      "parameters": {
+        "tableId": "chamados",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "protocolo",
+              "fieldValue": "={{ $('CODE: Gerador de Protocolo').item.json.protocolo }}"
+            },
+            {
+              "fieldId": "numero_usuario",
+              "fieldValue": "={{ $('Start').first().json.Numero_firstItem }}"
+            },
+            {
+              "fieldId": "prioridade",
+              "fieldValue": "={{ $json.output.prioridade }}"
+            },
+            {
+              "fieldId": "resumo",
+              "fieldValue": "={{ $json.output.resumo }}"
+            },
+            {
+              "fieldId": "causa_provavel",
+              "fieldValue": "={{ $json.output.causa_provavel }}"
+            },
+            {
+              "fieldId": "descricao_original",
+              "fieldValue": "={{ $('Start').item.json.relatoFinal }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "ABERTO"
+            },
+            {
+              "fieldId": "categoria",
+              "fieldValue": "={{ $('Start').item.json.categoriaEscolhida }}"
+            },
+            {
+              "fieldId": "solucao_ia_tentada",
+              "fieldValue": "={{ $('Start').item.json.respostaRAG }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        5120,
+        96
+      ],
+      "id": "5ffa2d12-892c-4a00-835e-4dfdd1e7145a",
+      "name": "DB: Cria Chamado",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "usuarios",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('Start').first().json.Numero_firstItem }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status_conversa",
+              "fieldValue": "LIVRE"
+            },
+            {
+              "fieldId": "categoria_escolhida",
+              "fieldValue": "={{ null }}"
+            },
+            {
+              "fieldId": "ultima_interacao"
+            },
+            {
+              "fieldId": "ultimo_relato_usuario"
+            },
+            {
+              "fieldId": "ultima_resposta_ia"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        5344,
+        96
+      ],
+      "id": "0716f0d0-0f1d-4d5f-8bc3-4d21fd8cf842",
+      "name": "DB: Altera Status LIVRE",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "mensagem": "=✅ Chamado Aberto com Sucesso!\n\nSeu protocolo de atendimento é:\n🆔 {{ $('CODE: Gerador de Protocolo').first().json.protocolo }} \n📅 Data: {{ $now.format('dd/MM/yyyy HH:mm') }}\n\n📊 Análise Preliminar: \n- Resumo: {{ $('AI - Classifica o Chamado').first().json.output.resumo }}\n- Prioridade: {{ $('AI - Classifica o Chamado').first().json.output.prioridade }}\n\nNossa equipe técnica já foi notificada. Você será contatado assim que um técnico assumir o caso.\nObrigado pelo contato!",
+            "instancia": "={{ $('Start').item.json.Instancia_firstItem }}",
+            "numero": "={{ $('Start').item.json.Numero_firstItem }}",
+            "delay": "0"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        5552,
+        96
+      ],
+      "id": "62872b3d-f788-49ba-b86e-fe9b9db21108",
+      "name": "MSG: Comprovante de Abertura"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Numero_firstItem",
+              "type": "any"
+            },
+            {
+              "name": "Instancia_firstItem",
+              "type": "any"
+            },
+            {
+              "name": "categoriaEscolhida",
+              "type": "any"
+            },
+            {
+              "name": "relatoFinal",
+              "type": "any"
+            },
+            {
+              "name": "respostaRAG",
+              "type": "any"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        4352,
+        96
+      ],
+      "id": "f60050f9-2468-46d0-a92c-00b179f0c17b",
+      "name": "Start"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "CODE: Gerador de Protocolo": {
+      "main": [
+        [
+          {
+            "node": "AI - Classifica o Chamado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PARSER: Formata JSON": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI - Classifica o Chamado",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Classifica o Chamado": {
+      "main": [
+        [
+          {
+            "node": "DB: Cria Chamado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MODEL: GPT 5 Mini1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI - Classifica o Chamado",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "PARSER: Formata JSON",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MEM: Contexto do Agente": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI - Classifica o Chamado",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Cria Chamado": {
+      "main": [
+        [
+          {
+            "node": "DB: Altera Status LIVRE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Altera Status LIVRE": {
+      "main": [
+        [
+          {
+            "node": "MSG: Comprovante de Abertura",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "CODE: Gerador de Protocolo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "57f26643-e7ef-49e5-8b65-726028abda95",
+  "meta": {
+    "instanceId": "c5eaa6ba0986626f01eb024c5bb1f76aadad0a491a2deb83a77a572c5d18a719"
+  },
+  "id": "Uze1iUXTqZ2bHoQF",
+  "tags": [
+    {
+      "updatedAt": "2025-12-17T20:35:59.644Z",
+      "createdAt": "2025-12-17T20:35:59.644Z",
+      "id": "yo6XdkWF9gxVuN5Q",
+      "name": "sub-workflow"
+    }
+  ]
+}

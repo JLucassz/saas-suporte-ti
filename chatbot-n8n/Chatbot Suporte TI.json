@@ -1,0 +1,2604 @@
+{
+  "name": "Chatbot Suporte TI",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b654780c-67c5-4463-8eba-a53587c8b08b",
+              "leftValue": "={{ $json.Numero }}",
+              "rightValue": "5703",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1568,
+        0
+      ],
+      "id": "2c4e21c2-f460-40db-8f1c-70eda3119466",
+      "name": "Filtro de Numero"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1c0b6c86-2e84-416c-8994-39c3d748f69b",
+              "name": "Instancia",
+              "value": "={{ $json.body.instance }}",
+              "type": "string"
+            },
+            {
+              "id": "d2dc792e-56a4-46d6-9bf6-f3801c8aa3e9",
+              "name": "Numero",
+              "value": "={{$json.body.data.key.remoteJidAlt.replace('@s.whatsapp.net','')}}",
+              "type": "string"
+            },
+            {
+              "id": "9cc1855b-d3d1-4fdb-b8b6-114746cb338a",
+              "name": "Nome",
+              "value": "={{ $json.body.data.pushName }}",
+              "type": "string"
+            },
+            {
+              "id": "9c8db122-1c8f-4809-96f3-6ddd306b7e57",
+              "name": "Mensagem",
+              "value": "={{ $json.body.data.message.conversation }}",
+              "type": "string"
+            },
+            {
+              "id": "e5ac2c59-4f9c-4927-87d7-ef64389baddf",
+              "name": "TipoMensagem",
+              "value": "={{ $json.body.data.messageType }}",
+              "type": "string"
+            },
+            {
+              "id": "0e7bd18a-a294-41c4-9823-3a02c3ebc3d5",
+              "name": "base64",
+              "value": "={{ $json.body.data.message.base64 || \"sem imagem\" }}",
+              "type": "string"
+            },
+            {
+              "id": "081c45a1-4044-4dd3-b862-250cf90a68cb",
+              "name": "IdMensagem",
+              "value": "={{ $json.body.data.key.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1728,
+        0
+      ],
+      "id": "9220c85d-4f11-42a5-b4c2-fd39c90bdea4",
+      "name": "SET: Extrai Dados"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9c1b71c3-8f23-457c-ba9a-1caf554b559a",
+                    "leftValue": "={{ $json.status_conversa || $('DB: Busca Usuario').item.json.status_conversa }}",
+                    "rightValue": "VALIDANDO_SOLUCAO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "VALIDANDO_SOLUCAO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "be4efde6-99ad-4a1a-8bfb-1801fdec7111",
+                    "leftValue": "={{ $json.status_conversa || $('DB: Busca Usuario').item.json.status_conversa }}",
+                    "rightValue": "DESCREVENDO_PROBLEMA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DESCREVENDO_PROBLEMA"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "79101d75-4bd1-406b-9956-4bb59433d4ad",
+                    "leftValue": "={{ $json.status_conversa || $('DB: Busca Usuario').item.json.status_conversa }}",
+                    "rightValue": "AGUARDANDO_MENU",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "AGUARDANDO_MENU"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "882ea9be-e6ce-4fcc-ad9e-603808680540",
+                    "leftValue": "={{ $json.status_conversa || $('DB: Busca Usuario').item.json.status_conversa }}",
+                    "rightValue": "LIVRE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "LIVRE"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a9b7277a-68f0-4604-831f-38197cadddaa",
+                    "leftValue": "={{ $json.status_conversa || $('DB: Busca Usuario').item.json.status_conversa }}",
+                    "rightValue": "VALIDANDO_IDENTIDADE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "VALIDANDO_IDENTIDADE"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1152,
+        -80
+      ],
+      "id": "1a08b317-1e0d-49ff-b674-b04b45b86e75",
+      "name": "SWITCH: Status da Conversa"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -208,
+        96
+      ],
+      "id": "625a57f1-da63-424f-b4a7-151520affdde",
+      "name": "IA: Transcreve Audio",
+      "credentials": {
+        "openAiApi": {
+          "id": "OwW6ALMrJmJt2GRR",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Pega a mensagem padronizada\nlet msg = $('SET: Padroniza Midias para Texto').first().json.Mensagem || \"\";\n\n// Converte para minúsculo\nmsg = msg.toLowerCase();\n\n// 2. Dicionário de tradução (Palavra -> Número)\nconst mapa = {\n    'um': '1', 'uma': '1', 'primeira': '1', 'primeiro': '1',\n    'dois': '2', 'duas': '2', 'segunda': '2', 'segundo': '2',\n    'tres': '3', 'três': '3', 'terceira': '3', 'terceiro': '3',\n    'quatro': '4', 'quarta': '4', 'quarto': '4',\n    'cinco': '5', 'quinta': '5', 'quinto': '5',\n    'seis': '6', 'sexta': '6', 'sexto': '6', 'meia': '6',\n    'sete': '7', 'setima': '7', 'setimo': '7',\n    'oito': '8', 'oitava': '8', 'oitavo': '8',\n    'nove': '9', 'nona': '9', 'nono': '9',\n    'dez': '10', 'onze': '11', 'doze': '12' // Adicionado prevenção futura\n};\n\n// Substitui palavras por números\nfor (let palavra in mapa) {\n    let regex = new RegExp(`\\\\b${palavra}\\\\b`, 'g');\n    msg = msg.replace(regex, mapa[palavra]);\n}\n\n// -----------------------------------------------------------\n// CORREÇÃO DO PROBLEMA (11, 22...)\n// -----------------------------------------------------------\n\n// \\b  -> Word Boundary (Garante que é um numero isolado)\n// \\d+ -> Um ou mais dígitos (Pega \"1\", \"10\", \"11\", \"200\")\nconst numeroEncontrado = msg.match(/\\b\\d+\\b/);\n\n// Se achou, substitui a mensagem pelo número INTEIRO encontrado.\n// Ex: Se msg for \"quero a 11\", numeroEncontrado será \"11\".\nif (numeroEncontrado) {\n    msg = numeroEncontrado[0];\n}\n\n// Retorna o objeto\nreturn {\n    Mensagem: msg\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1488,
+        -112
+      ],
+      "id": "9bd80a90-4815-4c61-9c71-a55ea7d39a1a",
+      "name": "CODE: Tradutor Menu (Voz)"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {
+          "mimeType": "audio/mpeg"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -416,
+        96
+      ],
+      "id": "a7176367-4689-4bfc-83ba-f2eb7d0fc882",
+      "name": "BIN: Converte Base64 em Audio"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "db79013c-5e7a-404a-bbb8-21c7036d8107",
+              "name": "base64",
+              "value": "={{ $('SET: Extrai Dados').item.json.base64 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -624,
+        96
+      ],
+      "id": "5e7d9668-10dd-4af8-b305-6216a49b6546",
+      "name": "SET: Resgata Base64 (Audio)"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "usuarios",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('SET: Extrai Dados').first().json.Numero }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status_conversa",
+              "fieldValue": "AGUARDANDO_MENU"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        192
+      ],
+      "id": "9606def5-4f6e-4306-90bb-4d20a8b965e0",
+      "name": "DB: Define Status AGUARDANDO_MENU",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "usuarios",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('SET: Extrai Dados').item.json.Numero }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status_conversa",
+              "fieldValue": "DESCREVENDO_PROBLEMA"
+            },
+            {
+              "fieldId": "categoria_escolhida",
+              "fieldValue": "={{ parseInt($('DB: Busca Categoria Selecionada').item.json.codigo_menu) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        -208
+      ],
+      "id": "34589247-1203-4443-8ede-1fa91e21403d",
+      "name": "DB: Salva Categoria e Altera Status",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "da541e28-1dd3-43d9-a768-092534f4dcbf",
+              "leftValue": "={{ \n  // Se a data não existir, retorna 999 (expira)\n  !$('DB: Busca Usuario').item.json.data_ultima_mensagem \n  ? 999 \n  : ($now.valueOf() - DateTime.fromISO($('DB: Busca Usuario').item.json.data_ultima_mensagem).valueOf()) / 60000 \n}}",
+              "rightValue": 15,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        -48
+      ],
+      "id": "0b993c38-73ef-434e-94a0-7c36148e006a",
+      "name": "IF: Sessao Expirou?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "usuarios",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('SET: Extrai Dados').item.json.Numero }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "data_ultima_mensagem",
+              "fieldValue": "={{ $now }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1152,
+        -16
+      ],
+      "id": "de5649f7-b939-4452-881b-e8097531bff1",
+      "name": "DB: Atualiza Horario",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "usuarios",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('SET: Extrai Dados').item.json.Numero }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status_conversa",
+              "fieldValue": "LIVRE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        928,
+        -208
+      ],
+      "id": "cae7e4a7-6247-4c1e-942e-8b752f5dfb44",
+      "name": "DB: Reseta Sessao (LIVRE)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "8a52c725-61a2-4af9-a35f-419d55c8a53b",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1920,
+        0
+      ],
+      "id": "e7bf69c5-a081-4726-a5b3-da2b9d5ea49e",
+      "name": "WEBHOOK: Recebe Msg",
+      "webhookId": "8a52c725-61a2-4af9-a35f-419d55c8a53b"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "usuarios",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('SET: Extrai Dados').item.json.Numero }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1328,
+        -16
+      ],
+      "id": "51a9b9cc-8d00-482f-ba7f-877502b6c6aa",
+      "name": "DB: Busca Usuario",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cbbd2ee6-fd6e-4510-ac99-a9983836123a",
+              "leftValue": "={{ $('DB: Busca Usuario').item.json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        -32
+      ],
+      "id": "8c21f483-308b-4f57-b3de-5df3ea84cf2a",
+      "name": "IF: Usuario Existe?"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "02f3d1c5-660c-4a8c-af93-a324c0207dbd",
+                    "leftValue": "={{ $('SET: Extrai Dados').item.json.TipoMensagem }}",
+                    "rightValue": "imageMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Imagem"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2d0cbc35-0b49-43ad-9eef-563f7b0a4003",
+                    "leftValue": "={{ $('SET: Extrai Dados').item.json.TipoMensagem }}",
+                    "rightValue": "conversation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2cb1ff7e-bf38-4bd2-a0e9-2bbd091e76bd",
+                    "leftValue": "={{ $('SET: Extrai Dados').item.json.TipoMensagem }}",
+                    "rightValue": "audioMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -960,
+        -48
+      ],
+      "id": "6681a8d3-29ed-4cf4-933a-2056c774d441",
+      "name": "SWITCH: Filtra Tipo de Midia"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cb30f404-3380-44fb-bb08-fb4d81581ede",
+              "name": "Mensagem",
+              "value": "={{ ($json.text || $json.Mensagem || $('SET: Extrai Dados').item.json.Mensagem).toString().replace(/\\.$/, '').trim() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        -32
+      ],
+      "id": "fc4beb08-4b92-4aa1-af30-e2ca24761c0a",
+      "name": "SET: Padroniza Midias para Texto"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3f765ee8-769d-4057-9508-1367b9c9c646",
+              "leftValue": "={{ $json.sucesso }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1696,
+        -432
+      ],
+      "id": "b09892b7-8bd5-4c0c-a862-9a48d0dab83f",
+      "name": "IF: IA Resolveu?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c44d7e96-d62d-439e-bc75-c943f90817ae",
+              "name": "relatoFinal",
+              "value": "={{ $json.ultimo_relato_usuario || $(\"Code: Agrupa Mensagens\")?.first()?.json?.RelatoFinal }}",
+              "type": "string"
+            },
+            {
+              "id": "1fbb446c-a3f3-4e37-99c9-cd78997e4fca",
+              "name": "categoriaEscolhida",
+              "value": "={{ $json.categoria_escolhida || $('DB: Verifica Ultima Interacao')?.first()?.json?.categoria_escolhida }}",
+              "type": "string"
+            },
+            {
+              "id": "57d90262-8560-4f97-a4f5-1e693c92161d",
+              "name": "respostaRAG",
+              "value": "={{ $json.respostaRAG || $json.ultima_resposta_ia}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        -416
+      ],
+      "id": "c847ea37-372b-4214-856a-262c604bf4f1",
+      "name": "SET: Prepara Contexto"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "numero": "={{ $('SET: Extrai Dados').item.json.Numero }}",
+            "instancia": "={{ $('SET: Extrai Dados').item.json.Instancia }}",
+            "mensagem": "📂 *Arquivo não suportado*\n\nNo momento, meu sistema lê apenas: \n✅ Textos \n✅ Áudios \n✅ Fotos e Prints (Imagens)\n\nPor favor, *escreva* o que há no arquivo ou mande uma *foto* da tela para que eu possa abrir seu chamado. 🛠️",
+            "delay": "0"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -624,
+        320
+      ],
+      "id": "bb0bf853-93f1-4c5d-aec6-5524fb32e06b",
+      "name": "API: Formato Invalido",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "4CtC2ribv4AuKbIC",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/4CtC2ribv4AuKbIC",
+          "cachedResultName": "Processador de Imagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "base64": "={{ $('SET: Extrai Dados').item.json.base64 }}",
+            "status_conversa": "={{ $('DB: Busca Usuario').item.json.status_conversa }}",
+            "Nome": "={{ $('SET: Extrai Dados').item.json.Nome }}",
+            "Instancia": "={{ $('SET: Extrai Dados').item.json.Instancia }}",
+            "Numero": "={{ $('SET: Extrai Dados').item.json.Numero }}"
+          },
+          "matchingColumns": [
+            "base64",
+            "status_conversa",
+            "Nome",
+            "Instancia",
+            "Numero"
+          ],
+          "schema": [
+            {
+              "id": "base64",
+              "displayName": "base64",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status_conversa",
+              "displayName": "status_conversa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nome",
+              "displayName": "Nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Instancia",
+              "displayName": "Instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Numero",
+              "displayName": "Numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        -208
+      ],
+      "name": "SUB: Processador de Imagem",
+      "id": "8b8778be-26fe-453a-9fdd-123815644bb7"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "42wb9l7TnHgGnF9h",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/42wb9l7TnHgGnF9h",
+          "cachedResultName": "Validacao de CPF"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Mensagem": "={{ $('SET: Padroniza Midias para Texto').item.json.Mensagem }}",
+            "Instancia": "={{ $('SET: Extrai Dados').item.json.Instancia }}",
+            "Numero": "={{ $('SET: Extrai Dados').item.json.Numero }}",
+            "Nome": "={{ $('DB: Busca Usuario').item.json.nome }}"
+          },
+          "matchingColumns": [
+            "Mensagem"
+          ],
+          "schema": [
+            {
+              "id": "Mensagem",
+              "displayName": "Mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Instancia",
+              "displayName": "Instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Numero",
+              "displayName": "Numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Nome",
+              "displayName": "Nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        208
+      ],
+      "id": "151e2556-9e2b-4081-96f0-04f752583c44",
+      "name": "SUB: Validacao de CPF",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "numero": "={{ $('SET: Extrai Dados').first().json.Numero }}",
+            "instancia": "={{ $('SET: Extrai Dados').first().json.Instancia }}",
+            "delay": "2",
+            "mensagem": "={{ $json.menu_dinamico }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2432,
+        192
+      ],
+      "id": "84c3ff95-ba6f-43d9-bccb-1f947ccc40c9",
+      "name": "API: Envia Menu Principal"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "mensagem": "Desculpe, essa opção não é válida. 👇\n\nPor favor, digite *apenas o número* correspondente à categoria do menu acima.\nExemplos: Digite 1 para Computador, Digite 2 para Internet/Rede\"\n\nAguardando sua escolha...",
+            "numero": "={{ $('SET: Extrai Dados').item.json.Numero }}",
+            "instancia": "={{ $('SET: Extrai Dados').item.json.Instancia }}",
+            "delay": "2"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2080,
+        -16
+      ],
+      "id": "85a6c8ef-9a86-413c-8ce8-de761c06fe1b",
+      "name": "API: Erro Opcao Invalida"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "mensagem": "=Perfeito, vamos verificar essa questão de {{ $('DB: Busca Categoria Selecionada').item.json.nome }}. 🛠️\n\nAgora, por favor, me conte o que está acontecendo com o máximo de detalhes.\n✍️ Pode escrever abaixo ou enviar um áudio.",
+            "numero": "={{ $('SET: Extrai Dados').item.json.Numero }}",
+            "instancia": "={{ $('SET: Extrai Dados').item.json.Instancia }}",
+            "delay": "2"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2288,
+        -208
+      ],
+      "id": "0d2509d9-e10d-42c6-8d89-b849f9ab2c0c",
+      "name": "API: Pede Detalhes do Problema"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "0WN58RubKW8ACcGr",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/0WN58RubKW8ACcGr",
+          "cachedResultName": "Pre-Atendimento (RAG)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Numero": "={{ $('SET: Extrai Dados').item.json.Numero }}",
+            "Mensagem": "={{ $('SET: Padroniza Midias para Texto').item.json.Mensagem }}",
+            "Instancia": "={{ $('SET: Extrai Dados').item.json.Instancia }}"
+          },
+          "matchingColumns": [
+            "Numero",
+            "Mensagem",
+            "Instancia"
+          ],
+          "schema": [
+            {
+              "id": "Numero",
+              "displayName": "Numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Mensagem",
+              "displayName": "Mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Instancia",
+              "displayName": "Instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1504,
+        -432
+      ],
+      "name": "SUB: Pre-Atendimento (RAG)",
+      "id": "ae681e4b-4022-4edd-84cb-5630196e9993"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Mensagem }}",
+                    "rightValue": "=1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5bb73d4f-3395-44c7-b297-4bbd112a443d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SIM"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "42b04cc9-30eb-4517-a697-a8f87634b8bd",
+                    "leftValue": "={{ $json.Mensagem }}",
+                    "rightValue": "2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NAO"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1504,
+        -816
+      ],
+      "id": "f5ddd6de-1efa-42b7-9258-b637268fe2d9",
+      "name": "SWITCH: Avalia Resposta"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "usuarios",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "keyValue": "={{ $('SET: Extrai Dados').item.json.Numero }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1904,
+        -800
+      ],
+      "id": "3067b89a-8951-47dd-b4fa-4bf2a6e7d649",
+      "name": "DB: Busca Usuario Nov.",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "numero": "={{ $('SET: Extrai Dados').item.json.Numero }}",
+            "instancia": "={{ $('SET: Extrai Dados').item.json.Instancia }}",
+            "delay": "0",
+            "mensagem": "Ops, não entendi. 🤔\n\nPor favor, digite apenas o número correspondente:\n\n1️⃣ - SIM (resolveu o problema) \n2️⃣ - NÃO (abrir chamado)"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1696,
+        -624
+      ],
+      "id": "ec3e4961-02a5-45e2-9839-6d196152fd20",
+      "name": "API: Resposta Invalida"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "mensagem": "Que ótimo! Fico feliz em ajudar. 👋",
+            "numero": "={{ $('SET: Extrai Dados').item.json.Numero }}",
+            "instancia": "={{ $('SET: Extrai Dados').item.json.Instancia }}",
+            "delay": "0"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1696,
+        -1008
+      ],
+      "id": "969f944c-cebe-4491-928c-58cd071f4006",
+      "name": "API: Envia Confirmacao Solucao"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "usuarios",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('SET: Extrai Dados').first().json.Numero }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status_conversa",
+              "fieldValue": "LIVRE"
+            },
+            {
+              "fieldId": "categoria_escolhida",
+              "fieldValue": "={{ null }}"
+            },
+            {
+              "fieldId": "ultima_interacao"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1904,
+        -1008
+      ],
+      "id": "284f2ef9-9ed7-48d9-b09a-0df9ce08e3bd",
+      "name": "DB: Define Status LIVRE",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "numero": "={{ $('SET: Extrai Dados').item.json.Numero }}",
+            "instancia": "={{ $('SET: Extrai Dados').item.json.Instancia }}",
+            "delay": "0",
+            "mensagem": "Sua sessão anterior expirou. Iniciando nova sessão agora."
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        752,
+        -208
+      ],
+      "id": "a7708d35-50ac-4952-9e2e-f9aa3c802d70",
+      "name": "API: Sessao Expirada"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "categorias",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "codigo_menu",
+              "condition": "eq",
+              "keyValue": "={{ $json.Mensagem }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        -112
+      ],
+      "id": "1ff6e895-c183-43af-8a40-3a6a84474dc4",
+      "name": "DB: Busca Categoria Selecionada",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8fdb74e5-248e-42a1-a55f-30b17f671f46",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1856,
+        -112
+      ],
+      "id": "b720fbe2-72c1-4f62-9817-81f1afd201ff",
+      "name": "IF: Opcao Valida?"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "categorias",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ativo",
+              "condition": "eq",
+              "keyValue": "TRUE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        192
+      ],
+      "id": "c90a9a5b-4570-420e-b9a0-4c00dd6a4922",
+      "name": "DB: Busca Categorias (Menu)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// --------------------------------------------------------\n// 1. CORREÇÃO DO NOME DO USUÁRIO\n// --------------------------------------------------------\n// Em JavaScript, acessamos o nó anterior assim, e não com {{ }}\n// IMPORTANTE: O nome 'DB: Busca Usuario' deve ser EXATAMENTE o nome do seu nó de busca.\nconst nomeUsuario = $('DB: Busca Usuario').first().json.nome || \"\";\n\n// --------------------------------------------------------\n// 2. RECUPERAÇÃO DAS CATEGORIAS\n// --------------------------------------------------------\n// 'items' contém o que veio do nó Supabase imediatamente anterior\nconst categorias = items.map(item => item.json);\n\n// Mapa de emojis\nconst emojis = [\"0️⃣\", \"1️⃣\", \"2️⃣\", \"3️⃣\", \"4️⃣\", \"5️⃣\", \"6️⃣\", \"7️⃣\", \"8️⃣\", \"9️⃣\"];\n\n// Inicia o texto usando Template String (` `) para injetar a variável ${nomeUsuario}\nlet menuTexto = `👋 Olá ${nomeUsuario}! Seu acesso foi liberado com sucesso.\\n`;\nmenuTexto += \"Para continuarmos o seu atendimento, por favor escolha uma das opções abaixo:\\n\\n\";\n\n// --------------------------------------------------------\n// 3. LOOP DE CONSTRUÇÃO (Correção da lista)\n// --------------------------------------------------------\nfor (const cat of categorias) {\n    // Garante que existe um emoji, senão usa o número puro\n    const icone = emojis[cat.codigo_menu] || cat.codigo_menu;\n    \n    // Concatena (+=) a nova linha no texto\n    menuTexto += `${icone} - *${cat.nome}*\\n`;\n}\n\nmenuTexto += \"\\nResponda com o número da opção desejada ou envie um áudio.\";\n\n// Retorna apenas 1 item contendo o texto completo para o envio\nreturn [{\n    json: {\n        menu_dinamico: menuTexto\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2256,
+        192
+      ],
+      "id": "f1f1ebe2-7e97-4720-ba5a-c69f4d25938e",
+      "name": "CODE: Gera Menu"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Mensagem }}",
+                    "rightValue": "=1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5bb73d4f-3395-44c7-b297-4bbd112a443d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SIM"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "42b04cc9-30eb-4517-a697-a8f87634b8bd",
+                    "leftValue": "={{ $json.Mensagem }}",
+                    "rightValue": "2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NAO"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1408,
+        480
+      ],
+      "id": "7fd659b6-188d-4e2f-9833-c28e8b0c43a8",
+      "name": "SWITCH: Confirma Resposta"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "usuarios",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('SET: Extrai Dados').item.json.Numero }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status_conversa",
+              "fieldValue": "LIVRE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        320
+      ],
+      "id": "236fb606-4673-46ec-89e0-b0e7e7dc4b33",
+      "name": "DB: Define Status LIVRE.",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "numero": "={{ $('SET: Extrai Dados').item.json.Numero }}",
+            "instancia": "={{ $('SET: Extrai Dados').item.json.Instancia }}",
+            "mensagem": "Certo, operação cancelada.\n\nSe o nome exibido estava errado, verifique se você digitou algum número trocado.\n\n🔄 Por favor, envie o CPF novamente.",
+            "delay": "0"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1904,
+        496
+      ],
+      "id": "b9147273-7c98-4f5c-b0a7-6e659ec6d1cc",
+      "name": "API: MSG Vínculo Cancelado (Tentar Nov.)"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "usuarios",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero",
+              "condition": "eq",
+              "keyValue": "={{ $('SET: Extrai Dados').item.json.Numero }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status_conversa",
+              "fieldValue": "LIVRE"
+            },
+            {
+              "fieldId": "numero"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        496
+      ],
+      "id": "930602df-2073-41c2-a57f-5bf5e9822fe9",
+      "name": "DB: Define Status LIVRE e Reseta Numero",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "ekOYIFvekTHF0SoE",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N1DNzToSvAsIaaAw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/N1DNzToSvAsIaaAw",
+          "cachedResultName": "API - Enviar Mensagem"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "numero": "={{ $('SET: Extrai Dados').item.json.Numero }}",
+            "instancia": "={{ $('SET: Extrai Dados').item.json.Instancia }}",
+            "delay": "0",
+            "mensagem": "Ops, não entendi. 🤔\n\nPor favor, digite apenas o número correspondente:\n\n1️⃣ - SIM (Confirmar identidade) \n2️⃣ - NÃO (Cancelar)"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "instancia",
+              "displayName": "instancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "delay",
+              "displayName": "delay",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1680,
+        688
+      ],
+      "id": "1f26ab03-5888-4351-92b8-a8e76440dc3b",
+      "name": "API: MSG Resposta Invalida"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Uze1iUXTqZ2bHoQF",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/Uze1iUXTqZ2bHoQF",
+          "cachedResultName": "Criando Chamados"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Numero_firstItem": "={{ $('SET: Extrai Dados').first().json.Numero }}",
+            "Instancia_firstItem": "={{ $('SET: Extrai Dados').first().json.Instancia }}",
+            "categoriaEscolhida": "={{ $json.categoriaEscolhida }}",
+            "relatoFinal": "={{ $json.relatoFinal }}",
+            "respostaRAG": "={{ $json.respostaRAG }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Numero_firstItem",
+              "displayName": "Numero_firstItem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Instancia_firstItem",
+              "displayName": "Instancia_firstItem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "categoriaEscolhida",
+              "displayName": "categoriaEscolhida",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "relatoFinal",
+              "displayName": "relatoFinal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "respostaRAG",
+              "displayName": "respostaRAG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2288,
+        -416
+      ],
+      "id": "c7bc7d03-5cd7-4fb9-8caf-2f630b1522be",
+      "name": "Call 'Criando Chamados'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Filtro de Numero": {
+      "main": [
+        [
+          {
+            "node": "DB: Busca Usuario",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "SET: Extrai Dados": {
+      "main": [
+        [
+          {
+            "node": "Filtro de Numero",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SWITCH: Status da Conversa": {
+      "main": [
+        [
+          {
+            "node": "SWITCH: Avalia Resposta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SUB: Pre-Atendimento (RAG)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CODE: Tradutor Menu (Voz)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Busca Categorias (Menu)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SWITCH: Confirma Resposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA: Transcreve Audio": {
+      "main": [
+        [
+          {
+            "node": "SET: Padroniza Midias para Texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: Tradutor Menu (Voz)": {
+      "main": [
+        [
+          {
+            "node": "DB: Busca Categoria Selecionada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BIN: Converte Base64 em Audio": {
+      "main": [
+        [
+          {
+            "node": "IA: Transcreve Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET: Resgata Base64 (Audio)": {
+      "main": [
+        [
+          {
+            "node": "BIN: Converte Base64 em Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Salva Categoria e Altera Status": {
+      "main": [
+        [
+          {
+            "node": "API: Pede Detalhes do Problema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Sessao Expirou?": {
+      "main": [
+        [
+          {
+            "node": "API: Sessao Expirada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SWITCH: Status da Conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Atualiza Horario": {
+      "main": [
+        [
+          {
+            "node": "SWITCH: Filtra Tipo de Midia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Reseta Sessao (LIVRE)": {
+      "main": [
+        [
+          {
+            "node": "SWITCH: Status da Conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WEBHOOK: Recebe Msg": {
+      "main": [
+        [
+          {
+            "node": "SET: Extrai Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Busca Usuario": {
+      "main": [
+        [
+          {
+            "node": "DB: Atualiza Horario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Usuario Existe?": {
+      "main": [
+        [
+          {
+            "node": "IF: Sessao Expirou?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SUB: Validacao de CPF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SWITCH: Filtra Tipo de Midia": {
+      "main": [
+        [
+          {
+            "node": "SUB: Processador de Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SET: Padroniza Midias para Texto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SET: Resgata Base64 (Audio)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API: Formato Invalido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET: Padroniza Midias para Texto": {
+      "main": [
+        [
+          {
+            "node": "IF: Usuario Existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: IA Resolveu?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "SET: Prepara Contexto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET: Prepara Contexto": {
+      "main": [
+        [
+          {
+            "node": "Call 'Criando Chamados'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SUB: Processador de Imagem": {
+      "main": [
+        [
+          {
+            "node": "SET: Padroniza Midias para Texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SUB: Validacao de CPF": {
+      "main": [
+        []
+      ]
+    },
+    "API: Envia Menu Principal": {
+      "main": [
+        [
+          {
+            "node": "DB: Define Status AGUARDANDO_MENU",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SUB: Pre-Atendimento (RAG)": {
+      "main": [
+        [
+          {
+            "node": "IF: IA Resolveu?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SWITCH: Avalia Resposta": {
+      "main": [
+        [
+          {
+            "node": "API: Envia Confirmacao Solucao",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Busca Usuario Nov.",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API: Resposta Invalida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Busca Usuario Nov.": {
+      "main": [
+        [
+          {
+            "node": "SET: Prepara Contexto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Envia Confirmacao Solucao": {
+      "main": [
+        [
+          {
+            "node": "DB: Define Status LIVRE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Sessao Expirada": {
+      "main": [
+        [
+          {
+            "node": "DB: Reseta Sessao (LIVRE)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Busca Categoria Selecionada": {
+      "main": [
+        [
+          {
+            "node": "IF: Opcao Valida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Opcao Valida?": {
+      "main": [
+        [
+          {
+            "node": "DB: Salva Categoria e Altera Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API: Erro Opcao Invalida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Busca Categorias (Menu)": {
+      "main": [
+        [
+          {
+            "node": "CODE: Gera Menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: Gera Menu": {
+      "main": [
+        [
+          {
+            "node": "API: Envia Menu Principal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SWITCH: Confirma Resposta": {
+      "main": [
+        [
+          {
+            "node": "DB: Define Status LIVRE.",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: Define Status LIVRE e Reseta Numero",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API: MSG Resposta Invalida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Define Status LIVRE.": {
+      "main": [
+        [
+          {
+            "node": "DB: Busca Categorias (Menu)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Define Status LIVRE e Reseta Numero": {
+      "main": [
+        [
+          {
+            "node": "API: MSG Vínculo Cancelado (Tentar Nov.)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "95293036-cd8a-413f-ad76-5ae858f06be5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c5eaa6ba0986626f01eb024c5bb1f76aadad0a491a2deb83a77a572c5d18a719"
+  },
+  "id": "rZOkKCmidhVEwHtl",
+  "tags": []
+}

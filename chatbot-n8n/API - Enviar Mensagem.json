@@ -1,0 +1,148 @@
+{
+  "name": "API - Enviar Mensagem",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "mensagem"
+            },
+            {
+              "name": "numero"
+            },
+            {
+              "name": "instancia"
+            },
+            {
+              "name": "delay"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -288,
+        -128
+      ],
+      "id": "b9b5671a-2a4f-4355-9aff-05b4de79a67b",
+      "name": "TRIGGER: Recebe Dados"
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.delay || 2 }}",
+        "unit": "seconds"
+      },
+      "id": "335081fc-b7e7-45ff-8988-79d4b015927f",
+      "name": "WAIT: Delay",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -128
+      ],
+      "webhookId": "e0564ce4-6c07-4999-8aab-931d27638136"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "={{ $json.instancia }}",
+        "remoteJid": "={{ $json.numero }}",
+        "messageText": "={{ $json.mensagem }}",
+        "options_message": {}
+      },
+      "id": "cb56b174-5e4c-40a1-86bb-10601e824705",
+      "name": "API: Envia MSG WhatsApp",
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -128
+      ],
+      "credentials": {
+        "evolutionApi": {
+          "id": "UgqHQrQSVJyUP9Ab",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2f06c81-1f5e-449c-8e3e-30d7c50d6ddf",
+              "name": "sucesso",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        -128
+      ],
+      "id": "56b5aace-76e3-4936-8f31-2b82775fbd11",
+      "name": "SET: Output Sucesso"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "TRIGGER: Recebe Dados": {
+      "main": [
+        [
+          {
+            "node": "WAIT: Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WAIT: Delay": {
+      "main": [
+        [
+          {
+            "node": "API: Envia MSG WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Envia MSG WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "SET: Output Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7e369556-cb25-4b8d-a57e-3f22bd625492",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c5eaa6ba0986626f01eb024c5bb1f76aadad0a491a2deb83a77a572c5d18a719"
+  },
+  "id": "N1DNzToSvAsIaaAw",
+  "tags": [
+    {
+      "updatedAt": "2025-12-17T20:35:59.644Z",
+      "createdAt": "2025-12-17T20:35:59.644Z",
+      "id": "yo6XdkWF9gxVuN5Q",
+      "name": "sub-workflow"
+    }
+  ]
+}
