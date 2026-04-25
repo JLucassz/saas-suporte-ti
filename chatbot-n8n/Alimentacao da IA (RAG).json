@@ -112,7 +112,7 @@
           "parameters": [
             {
               "name": "Authorization ",
-              "value": "Bearer SUA_CHAVE_AQUI"
+              "value": "Bearer SUA_CHAVE"
             }
           ]
         },
