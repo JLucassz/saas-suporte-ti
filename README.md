@@ -1,6 +1,6 @@
 # 🚀 SaaS Suporte de TI: Central de Atendimento Inteligente
 
-Este ecossistema foi desenvolvido para **centralizar o suporte de TI em um único lugar**, eliminando o fluxo caótico de mensagens privadas e informais enviadas diretamente aos técnicos. A solução une o **WhatsApp** com o poder da **Inteligência Artificial** e a eficiência de uma **Dashboard Kanban** moderna.
+Este ecossistema foi desenvolvido para **centralizar o suporte de TI em um único lugar**, eliminando o fluxo caótico de mensagens privadas enviadas diretamente aos técnicos. A solução une o **WhatsApp** com o poder da **Inteligência Artificial** e a eficiência de uma **Dashboard** moderna.
 
 ---
 
@@ -25,58 +25,65 @@ O foco principal é a **produtividade e a organização**. Ao centralizar as dem
 
 ## 🤖 Parte 1: Arquitetura do Chatbot (n8n)
 
-O chatbot foi construído com uma arquitetura de microsserviços, dividido em **7 workflows integrados** para garantir modularidade e fácil manutenção.
+O chatbot foi construído com uma arquitetura de microsserviços, dividido em **7 workflows integrados** para garantir modularidade e alta performance.
 
 ### 1. Workflow Principal (Maestro)
+É o núcleo do sistema. Ele gerencia a jornada do usuário, controla os tempos de espera e utiliza uma **Máquina de Estados** para gerenciar o contexto do atendimento.
 > ![Workflow Maestro](./assets/chatbot-suporte-ti.png)
 
-### 2. Validação de CPF
+### 2. Validação de CPF (com Fast-Pass)
+Módulo de segurança e identificação. Possui uma lógica de **Fast-Pass**: se o sistema identificar que o usuário já foi validado anteriormente e possui um cadastro ativo, ele pula a solicitação de dados, agilizando o início do suporte.
 > ![Workflow Validação de CPF](./assets/validacao-cpf.png)
 
 ### 3. Processador de Imagem
+Utiliza modelos de **Visão Computacional da OpenAI** para analisar capturas de tela. Ele identifica códigos de erro e descrições técnicas de imagens, anexando essas informações ao chamado.
 > ![Workflow Processador de Imagem](./assets/processador-imagem.png)
 
-### 4. Pré-Atendimento (RAG)
+### 4. Pré-Atendimento (RAG com Agregação)
+Este é o motor de inteligência. O workflow **junta e sintetiza todas as mensagens** enviadas pelo usuário para que a IA tenha o contexto completo. Então, realiza uma busca semântica na base de dados vetorial para tentar resolver o problema automaticamente.
 > ![Workflow Pré-Atendimento RAG](./assets/pre-atendimento-rag.png)
 
 ### 5. Criando Chamados
+Consolida o histórico, o resumo da IA e a causa provável, formatando os dados e persistindo o ticket oficial no banco de dados **Supabase**.
 > ![Workflow Criando Chamados](./assets/criando-chamados.png)
 
 ### 6. API - Enviar Mensagem
+Ponto único de saída para todas as mensagens do bot. Centraliza as requisições para a **Evolution API**, facilitando manutenções futuras na integração com o WhatsApp.
 > ![Workflow API Enviar Mensagem](./assets/api-enviar-mensagem.png)
 
 ### 7. Alimentação da IA (RAG)
+Workflow de backoffice para processamento de manuais e documentos. Realiza o tratamento do texto e gera os *embeddings* que permitem à IA aprender com novos conteúdos.
 > ![Workflow Alimentação da IA](./assets/alimentacao-ia-rag.png)
 
 ---
 
 ## 💻 Parte 2: Dashboard Administrativa (Lovable + React)
 
-A interface de gestão foi desenvolvida para oferecer controle total sobre o ecossistema de suporte, permitindo que a equipe de TI gerencie chamados, usuários e a base de conhecimento da IA.
+Interface desenvolvida para controle total do ecossistema, permitindo gestão de tickets, usuários autorizados e relatórios de performance.
 
 ### 🔐 1. Tela de Login
-Acesso restrito e seguro para os membros da equipe de TI.
+Acesso restrito e seguro para os membros da equipe técnica de TI.
 > ![Tela de Login](./assets/login.png)
 
 ### 📋 2. Dashboard (Kanban)
-Visão geral dos chamados abertos, em atendimento e resolvidos, com suporte a drag-and-drop e insights gerados por IA.
+Gestão visual dos tickets com suporte a drag-and-drop e visualização de prioridades.
 > ![Painel Kanban](./assets/dashboard.png)
 
 ### 📚 3. Base de Conhecimento
-Interface para upload e gestão de manuais (PDF/Doc) que alimentam o motor de **RAG** do chatbot.
+Central de documentos onde a equipe de TI faz o upload de manuais que alimentam o cérebro da IA.
 > ![Gestão de Conhecimento](./assets/base-conhecimento.png)
 
 ### 📊 4. Relatórios e Métricas
-Visualização de dados sobre o volume de atendimentos, tempo médio de resposta e eficiência da IA.
+Análise de dados sobre o volume de chamados, tempo de resposta e taxa de resolução por IA.
 > ![Relatórios](./assets/relatorios.png)
 
 ### 🛠️ 5. Equipe de TI
-Gestão dos técnicos e administradores que possuem acesso à plataforma.
+Gestão de membros e permissões dos técnicos que operam o sistema.
 > ![Equipe de TI](./assets/equipe-ti.png)
 
-### 👥 6. Usuários do Chatbot
-Controle e histórico de todos os usuários que já interagiram com o bot via WhatsApp.
-> ![Usuários do Chatbot](./assets/usuarios-chatbot.png)
+### 👥 6. Usuários Autorizados
+Listagem e controle de todos os **usuários cadastrados que possuem permissão** para abrir chamados via chatbot. É aqui que se gerencia quem tem acesso ao suporte.
+> ![Usuários Autorizados](./assets/usuarios-chatbot.png)
 
 ---
 
@@ -84,12 +91,12 @@ Controle e histórico de todos os usuários que já interagiram com o bot via Wh
 
 | Componente | Tecnologia |
 | :--- | :--- |
-| **Automação de Fluxo** | [n8n](https://n8n.io/) |
-| **Integração WhatsApp** | [Evolution API](https://evolution-api.com/) |
-| **Banco de Dados & Vetores**| [Supabase](https://supabase.com/) |
-| **Frontend Dashboard** | React + Vite (via **Lovable**) |
-| **Estilização** | Tailwind CSS + shadcn/ui |
-| **Modelos de IA** | OpenAI (GPT-4o Vision / Text-Embedding-3) |
+| **Automação** | n8n |
+| **WhatsApp** | Evolution API |
+| **Banco de Dados** | Supabase (PostgreSQL + Vector) |
+| **Frontend** | React + Vite (via **Lovable**) |
+| **UI/UX** | Tailwind CSS + shadcn/ui |
+| **Modelos IA** | OpenAI (GPT-4o / Text-Embedding-3) |
 
 ---
 
